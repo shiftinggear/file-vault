@@ -16,7 +16,7 @@ class FileVaultTest extends TestCase
      *
      * @return array
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app) : array
     {
         return [
             FileVaultServiceProvider::class,
@@ -30,7 +30,7 @@ class FileVaultTest extends TestCase
      *
      * @return array
      */
-    protected function getPackageAliases($app)
+    protected function getPackageAliases($app) : array
     {
         return [
             'FileVault' => FileVault::class,
@@ -59,7 +59,7 @@ class FileVaultTest extends TestCase
      *
      * @return string
      */
-    protected function generateRandomKey()
+    protected function generateRandomKey() : string
     {
         return 'base64:'.base64_encode(
             \SoareCostin\FileVault\FileVault::generateKey()
@@ -79,72 +79,72 @@ class FileVaultTest extends TestCase
     }
 
     /** @test */
-    public function test_encrypt_generates_a_file()
+    public function test_encrypt_generates_a_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
         FileVault::encrypt($fileName);
 
         // Test if the encrypted file exists
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path("{$fileName}.enc")
         );
     }
 
     /** @test */
-    public function test_encrypt_copy_generates_a_file()
+    public function test_encrypt_copy_generates_a_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
         FileVault::encryptCopy($fileName);
 
         // Test if the encrypted file exists
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path("{$fileName}.enc")
         );
     }
 
     /** @test */
-    public function test_it_can_encrypt_a_file_using_a_different_destination_name()
+    public function test_it_can_encrypt_a_file_using_a_different_destination_name() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
         FileVault::encrypt($fileName, 'encrypted.enc');
 
         // Test if the encrypted file exists
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path('encrypted.enc')
         );
     }
 
     /** @test */
-    public function test_encrypt_deletes_the_original()
+    public function test_encrypt_deletes_the_original() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
         FileVault::encrypt($fileName);
 
         // Test if the original file has been deleted
-        $this->assertFileNotExists(
+        self::assertFileDoesNotExist(
             Storage::path($fileName)
         );
     }
 
     /** @test */
-    public function test_encrypt_copy_keeps_the_original()
+    public function test_encrypt_copy_keeps_the_original() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
         FileVault::encryptCopy($fileName);
 
         // Test if the original file still exists
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path($fileName)
         );
     }
 
     /** @test */
-    public function test_decrypt()
+    public function test_decrypt() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -152,13 +152,13 @@ class FileVaultTest extends TestCase
         FileVault::decrypt("{$fileName}.enc");
 
         // Test that the decrypted file was generated
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path($fileName)
         );
     }
 
     /** @test */
-    public function test_decrypt_using_a_different_destination_name()
+    public function test_decrypt_using_a_different_destination_name() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -166,13 +166,13 @@ class FileVaultTest extends TestCase
         FileVault::decrypt("{$fileName}.enc", "{$fileName}.dec");
 
         // Test that the decrypted file was generated
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path("{$fileName}.dec")
         );
     }
 
     /** @test */
-    public function test_decrypt_deletes_the_encrypted_file()
+    public function test_decrypt_deletes_the_encrypted_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -180,13 +180,13 @@ class FileVaultTest extends TestCase
         FileVault::decrypt("{$fileName}.enc");
 
         // Test that the encrypted file was deleted after decryption
-        $this->assertFileNotExists(
+        self::assertFileDoesNotExist(
             Storage::path("{$fileName}.enc")
         );
     }
 
     /** @test */
-    public function test_decrypt_copy_keeps_the_encrypted_file()
+    public function test_decrypt_copy_keeps_the_encrypted_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -194,13 +194,13 @@ class FileVaultTest extends TestCase
         FileVault::decryptCopy("{$fileName}.enc");
 
         // Test that the encrypted file was deleted after decryption
-        $this->assertFileExists(
+        self::assertFileExists(
             Storage::path("{$fileName}.enc")
         );
     }
 
     /** @test */
-    public function test_a_decrypted_file_has_the_same_content_as_the_original_file()
+    public function test_a_decrypted_file_has_the_same_content_as_the_original_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -208,14 +208,14 @@ class FileVaultTest extends TestCase
         FileVault::decrypt("{$fileName}.enc", "{$fileName}.dec");
 
         // Test to see if the decrypted content is the same as the original
-        $this->assertEquals(
+        self::assertEquals(
             Storage::get($fileName),
             Storage::get("{$fileName}.dec")
         );
     }
 
     /** @test */
-    public function test_it_can_encrypt_and_decrypt_using_a_user_generated_key()
+    public function test_it_can_encrypt_and_decrypt_using_a_user_generated_key() : void
     {
         $key = FileVault::generateKey();
 
@@ -225,14 +225,14 @@ class FileVaultTest extends TestCase
         FileVault::key($key)->decrypt("{$fileName}.enc", "{$fileName}.dec");
 
         // Test to see if the decrypted content is the same as the original
-        $this->assertEquals(
+        self::assertEquals(
             Storage::get($fileName),
             Storage::get("{$fileName}.dec")
         );
     }
 
     /** @test */
-    public function test_it_can_stream_a_decrypted_file()
+    public function test_it_can_stream_a_decrypted_file() : void
     {
         $this->generateFile($fileName = 'file.txt');
 
@@ -244,7 +244,7 @@ class FileVaultTest extends TestCase
         ob_end_clean();
 
         // Test to see if the decrypted content is sent to php://output
-        $this->assertEquals(
+        self::assertEquals(
             Storage::get($fileName),
             $phpOutput
         );
